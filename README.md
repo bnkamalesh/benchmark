@@ -6,6 +6,9 @@ Please refer to the sample code `/sample/main.go`.
 
 
 ## Sample output:
+
+Benchmark run for HTTP GET request to `https://kamaleshwar.com`.
+
 ```
 Duration: 1s  Total requests: 100  Wait time per request: 10ms  Show progess: true , per 10 request(s)
 
