@@ -2,7 +2,7 @@
 A Go library to get benchmarks of a function (execution time).
 
 ## How to use?
-Please refer to the [sample](https://github.com/bnkamalesh/benchmark/sample).
+Please refer to the sample code `/sample/main.go`.
 
 
 ## Sample output:
