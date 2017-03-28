@@ -210,6 +210,7 @@ func (bA *Benchmark) Run(fn benchFn) {
 			err := fn.Call()
 			bA.Done(time.Since(startTime), err)
 		}()
+		time.Sleep(bA.WaitPerReq)
 	}
 
 	bA.Final()
