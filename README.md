@@ -2,7 +2,7 @@
 A Go library to get benchmarks of a function (execution time). All requests/executions are done in *parellel* (Go routines).
 
 ## How to use?
-Please refer to the sample code `/sample/main.go`.
+Any function with the signature `fn() error` can be used to run the benchmark. Please refer to the sample code `/sample/main.go`
 
 
 ## Sample output:

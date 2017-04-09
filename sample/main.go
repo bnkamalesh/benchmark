@@ -16,10 +16,7 @@ func dialTimeout(network, addr string) (net.Conn, error) {
 
 var httpClient http.Client
 
-// The benchFn interface implementation
-type benchFn struct{}
-
-func (bF benchFn) Call() error {
+func httpGet() error {
 	req, _ := http.NewRequest("GET", "https://kamaleshwar.com", nil)
 
 	resp, err := httpClient.Do(req)
@@ -28,14 +25,13 @@ func (bF benchFn) Call() error {
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)
-	defer resp.Body.Close()
 	if err != nil {
 		return err
 	}
+	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
-		errResp := string(body)
-		return errors.New(errResp)
+		err = errors.New(string(body))
 	}
 
 	return err
@@ -63,5 +59,5 @@ func main() {
 	// Updates all the necessary fields according to the configuration provided
 	benchmark.Init()
 	// Run the benchmark
-	benchmark.Run(benchFn{})
+	benchmark.Run(httpGet)
 }

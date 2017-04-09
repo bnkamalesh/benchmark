@@ -185,13 +185,8 @@ func (bA *Benchmark) Done(doneTime time.Duration, err error) {
 	bA.waitGroup.Done()
 }
 
-//benchFn is the interface which has to be implemented by any function which should be benchmarked
-type benchFn interface {
-	Call() error
-}
-
 //Run runs the benchmark for the given function
-func (bA *Benchmark) Run(fn benchFn) {
+func (bA *Benchmark) Run(fn func() error) {
 	fmt.Println(
 		"Duration:", time.Millisecond*time.Duration(bA.BenchDuration),
 		" Total requests:", bA.TotalRequests,
@@ -207,7 +202,7 @@ func (bA *Benchmark) Run(fn benchFn) {
 	for i := uint64(0); i < bA.TotalRequests; i++ {
 		go func() {
 			startTime := time.Now()
-			err := fn.Call()
+			err := fn()
 			bA.Done(time.Since(startTime), err)
 		}()
 		time.Sleep(bA.WaitPerReq)
