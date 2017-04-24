@@ -48,11 +48,11 @@ func main() {
 	// Returns a new Benchmark pointer with all the defaults assigned
 	benchmark := benchmark.New()
 	// time to wait before firing the consequent request
-	benchmark.WaitPerReq = time.Millisecond * 1
+	// benchmark.WaitPerReq = time.Millisecond * 1
 	// print available stats while the benchmark is running
 	benchmark.ShowProgress = true
 	// Total number of requests to fire
-	benchmark.TotalRequests = 100
+	benchmark.TotalRequests = 750
 	// Duration in which all the requests have to be finished firing (in milliseconds).
 	benchmark.BenchDuration = 1000
 

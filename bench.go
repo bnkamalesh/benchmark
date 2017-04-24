@@ -140,7 +140,7 @@ func (bA *Benchmark) Init() {
 
 	//If wait time is not provided, calculate based on benchmark duration and total no.of requests
 	if bA.WaitPerReq == 0 {
-		bA.WaitPerReq = time.Nanosecond * time.Duration(float32((bA.BenchDuration*1000000)/bA.TotalRequests))
+		bA.WaitPerReq = time.Nanosecond * time.Duration((bA.BenchDuration*1000000)/bA.TotalRequests)
 	}
 
 	//if 1/10th of total requests is less than 1, it's set to 1

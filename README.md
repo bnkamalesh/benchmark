@@ -10,45 +10,44 @@ Any function with the signature `fn() error` can be used to run the benchmark. P
 Benchmark run for HTTP GET request to `https://kamaleshwar.com`.
 
 ```
-Duration: 1s  Total requests: 100  Wait time per request: 10ms  Show progess: true , per 10 request(s)
+Duration              : 1s 
+Total requests        : 750 
+Wait time per request : 1.333333ms 
+Show progess          : true , per 75 request(s) 
+Start                 : 2017-04-25 03:56:18.917402373 +0530 IST
 
-Start:2017-03-14 20:48:02.432076782 +0530 IST
 
-10  out of  100  done.  Success: 9  Errors: 0
-20  out of  100  done.  Success: 19  Errors: 0
-30  out of  100  done.  Success: 29  Errors: 0
-40  out of  100  done.  Success: 39  Errors: 0
-50  out of  100  done.  Success: 49  Errors: 0
-60  out of  100  done.  Success: 59  Errors: 0
-70  out of  100  done.  Success: 69  Errors: 0
-80  out of  100  done.  Success: 79  Errors: 0
-90  out of  100  done.  Success: 89  Errors: 0
-100  out of  100  done.  Success: 94  Errors: 4
-
-Done: 2017-03-14 20:48:12.438243541 +0530 IST 
+75  out of  750  done.  Success: 74  Errors: 0
+150  out of  750  done.  Success: 149  Errors: 0
+225  out of  750  done.  Success: 224  Errors: 0
+300  out of  750  done.  Success: 299  Errors: 0
+375  out of  750  done.  Success: 374  Errors: 0
+450  out of  750  done.  Success: 449  Errors: 0
+525  out of  750  done.  Success: 524  Errors: 0
+600  out of  750  done.  Success: 599  Errors: 0
+675  out of  750  done.  Success: 674  Errors: 0
+750  out of  750  done.  Success: 748  Errors: 0
 
 ========================= Benchmark stats =========================
  
-Total requests: 100 
-Requests completed: 100
-------
+Done               : 2017-04-25 03:56:29.019980966 +0530 IST 
+Time to complete   : 10.1025787s 
+Total requests     : 750 
+Requests completed : 750 
+Success            : 748 (99.73333333333333%) 
+Errors             : 2 (0.26666666666666666%)
 
-Success: 94 (94%) 
-Errors: 6 (6%)
-------
+Average time per successful request : 3.291541039s 
+Fastest                             : 256.852232ms 
+Slowest                             : 7.255390376s
 
-Total time taken to complete the benchmark: 10.006308073s
-Average time per successful request: 2.335882319s 
-Fastest: 323.045732ms 
-Slowest: 8.266474823s
+Average time per failed request : 10.004558347s 
+Fastest                         : 10.003726326s 
+Slowest                         : 10.005390368s
 
-Average time per failed request: 10.004783269s 
-Fastest: 10.00394276s 
-Slowest: 10.005461733s
-------
 
 Error messages (1)
 
  1. Get https://kamaleshwar.com: net/http: request canceled (Client.Timeout exceeded while awaiting headers)
-  Occurrences: 4
+  Occurrences: 2
 ```
