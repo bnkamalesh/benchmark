@@ -62,7 +62,9 @@ type Benchmark struct {
 	StatReqCount uint64
 
 	//errors keeps track of all the errors encountered during the benchmark
-	errors atomic.Value
+	errors map[string]errorStat
+
+	mutex *sync.Mutex
 }
 
 type errorStat struct {
@@ -81,29 +83,22 @@ func (bA *Benchmark) errStat(err error) {
 	//errKey is used as the key in map[string]errStat
 	errKey := hex.EncodeToString(hash[:])
 
-	//bAeList is the error statistic available at the given instant
-	if bAeList, ok := bA.errors.Load().(errorsList); ok {
-		//Copying the map and updating the copied map to prevent race condition. This is bad :(
-		eList := make(errorsList)
-		for key, item := range bAeList {
-			eList[key] = item
-		}
+	bA.mutex.Lock()
 
-		if item, ok := eList[errKey]; ok {
-			//Error message was already added, only incrementing counter
-			item.Count++
-			eList[errKey] = item
-		} else {
-			//New error message was encountered, incrementing counter and setting new error message
-			item.Count++
-			item.Message = errMsg
-			eList[errKey] = item
+	if item, ok := bA.errors[errKey]; ok {
+		item.Count++
+		bA.errors[errKey] = item
+	} else {
+		bA.errors[errKey] = errorStat{
+			Message: errMsg,
+			Count:   1,
 		}
-
-		bA.errors.Store(eList)
 	}
 
-	atomic.AddUint64(&bA.errorCounter, 1)
+	bA.errorCounter++
+
+	bA.mutex.Unlock()
+
 }
 
 //New returns a new Benchmark pointer with the default values set
@@ -126,9 +121,11 @@ func New() *Benchmark {
 		minReqTime:        1 << 63,
 		successMinReqTime: 1 << 63,
 		errorMinReqTime:   1 << 63,
-	}
 
-	bA.errors.Store(make(errorsList))
+		errors: make(map[string]errorStat),
+
+		mutex: &sync.Mutex{},
+	}
 
 	return bA
 }
@@ -141,7 +138,10 @@ func (bA *Benchmark) Init() {
 	//Progress is always showed every time it completes 1/10th of the total number of requests
 	bA.StatReqCount = bA.TotalRequests / 10
 
-	bA.WaitPerReq = time.Millisecond * time.Duration(float32(bA.BenchDuration/bA.TotalRequests))
+	//If wait time is not provided, calculate based on benchmark duration and total no.of requests
+	if bA.WaitPerReq == 0 {
+		bA.WaitPerReq = time.Nanosecond * time.Duration(float32((bA.BenchDuration*1000000)/bA.TotalRequests))
+	}
 
 	//if 1/10th of total requests is less than 1, it's set to 1
 	if bA.StatReqCount == 0 {
@@ -187,17 +187,17 @@ func (bA *Benchmark) Done(doneTime time.Duration, err error) {
 
 //Run runs the benchmark for the given function
 func (bA *Benchmark) Run(fn func() error) {
+	bA.benchStart = time.Now()
 	fmt.Println(
-		"Duration:", time.Millisecond*time.Duration(bA.BenchDuration),
-		" Total requests:", bA.TotalRequests,
-		" Wait time per request:", bA.WaitPerReq,
-		" Show progess:", bA.ShowProgress,
+		"\nDuration              :", time.Millisecond*time.Duration(bA.BenchDuration),
+		"\nTotal requests        :", bA.TotalRequests,
+		"\nWait time per request :", bA.WaitPerReq,
+		"\nShow progess          :", bA.ShowProgress,
 		", per", bA.StatReqCount, "request(s)",
+		"\nStart                 :", bA.benchStart,
 	)
 
-	bA.benchStart = time.Now()
-
-	fmt.Print("\nStart:", bA.benchStart, "\n\n")
+	print("\n\n")
 
 	for i := uint64(0); i < bA.TotalRequests; i++ {
 		go func() {
@@ -227,49 +227,40 @@ func (bA *Benchmark) Final() {
 	//Wait for all the go routines to complete
 	bA.waitGroup.Wait()
 
-	//Req completion will be printed inside this infinite for loop, as well as the app would wait
-	fmt.Println(
-		"\nDone:", time.Now(),
-		"\n\n========================= Benchmark stats =========================\n",
-		"\nTotal requests:", bA.TotalRequests,
-		"\nRequests completed:", bA.requestCounter)
-
-	println("------\n")
-
 	successRatio := float64(bA.successCounter) * float64(100) / float64(bA.requestCounter)
 	errorRatio := float64(bA.errorCounter) * float64(100) / float64(bA.requestCounter)
 
-	println(
-		"Success:", bA.successCounter, "("+strconv.FormatFloat(successRatio, 'f', -1, 64)+"%)",
-		"\nErrors:", bA.errorCounter, "("+strconv.FormatFloat(errorRatio, 'f', -1, 64)+"%)")
-
-	println("------\n")
-
-	fmt.Print(
-		"Total time taken to complete the benchmark: ", time.Since(bA.benchStart),
+	//Req completion will be printed inside this infinite for loop, as well as the app would wait
+	fmt.Println(
+		"\n========================= Benchmark stats =========================\n",
+		"\nDone               :", time.Now(),
+		"\nTime to complete   :", time.Since(bA.benchStart),
+		"\nTotal requests     :", bA.TotalRequests,
+		"\nRequests completed :", bA.requestCounter,
+		"\nSuccess            :", bA.successCounter, "("+strconv.FormatFloat(successRatio, 'f', -1, 64)+"%)",
+		"\nErrors             :", bA.errorCounter, "("+strconv.FormatFloat(errorRatio, 'f', -1, 64)+"%)",
 	)
 
 	if bA.successCounter > 0 {
 		fmt.Println(
-			"\nAverage time per successful request:", time.Nanosecond*time.Duration(bA.successRequestTimer)/time.Duration(bA.successCounter),
-			"\nFastest:", time.Duration(time.Nanosecond*time.Duration(bA.successMinReqTime)),
-			"\nSlowest:", time.Duration(time.Nanosecond*time.Duration(bA.successMaxReqTime)),
+			"\nAverage time per successful request :", time.Nanosecond*time.Duration(bA.successRequestTimer)/time.Duration(bA.successCounter),
+			"\nFastest                             :", time.Duration(time.Nanosecond*time.Duration(bA.successMinReqTime)),
+			"\nSlowest                             :", time.Duration(time.Nanosecond*time.Duration(bA.successMaxReqTime)),
 		)
 	}
 
 	if bA.errorCounter > 0 {
 		fmt.Println(
-			"\nAverage time per failed request:", time.Nanosecond*time.Duration(bA.errorRequestTimer)/time.Duration(bA.errorCounter),
-			"\nFastest:", time.Duration(time.Nanosecond*time.Duration(bA.errorMinReqTime)),
-			"\nSlowest:", time.Duration(time.Nanosecond*time.Duration(bA.errorMaxReqTime)),
+			"\nAverage time per failed request :", time.Nanosecond*time.Duration(bA.errorRequestTimer)/time.Duration(bA.errorCounter),
+			"\nFastest                         :", time.Duration(time.Nanosecond*time.Duration(bA.errorMinReqTime)),
+			"\nSlowest                         :", time.Duration(time.Nanosecond*time.Duration(bA.errorMaxReqTime)),
 		)
 	}
 
-	newErrors, ok := bA.errors.Load().(errorsList)
-	if ok && len(newErrors) > 0 {
-		println("------\n\nError messages (" + strconv.Itoa(len(newErrors)) + ")")
+	if len(bA.errors) > 0 {
+		println("\n\nError messages (" + strconv.Itoa(len(bA.errors)) + ")")
 		idx := 1
-		for _, item := range newErrors {
+		for _, item := range bA.errors {
 			println("\n "+strconv.Itoa(idx)+".", item.Message)
 			println("  Occurrences:", item.Count)
 			idx++
