@@ -1,8 +1,13 @@
-# benchmark
-A Go library to get benchmarks of a function (execution time). All requests/executions are done in *parellel* (Go routines).
+[![Build Status](https://travis-ci.org/bnkamalesh/benchmark.svg?branch=master)](https://travis-ci.org/bnkamalesh/benchmark)
+[![](https://goreportcard.com/badge/github.com/bnkamalesh/benchmark)](https://goreportcard.com/report/github.com/bnkamalesh/benchmark)
+[![](https://cover.run/go/github.com/bnkamalesh/benchmark.svg?tag=golang-1.10)](https://cover.run/go/github.com/bnkamalesh/benchmark)
+[![](https://godoc.org/github.com/nathany/looper?status.svg)](http://godoc.org/github.com/bnkamalesh/benchmark)
+
+# Benchmark
+A Go library to get benchmarks of a function (execution time). All requests/executions are done in *parallel* (Go routines).
 
 ## How to use?
-Any function with the signature `fn() error` can be used to run the benchmark. Please refer to the sample code `/sample/main.go`
+Any function with the signature `fn() error` can be used to run the benchmark. Please refer to the Example provided in the test file.
 
 
 ## Sample output:

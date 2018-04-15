@@ -98,7 +98,6 @@ func (bA *Benchmark) errStat(err error) {
 	bA.errorCounter++
 
 	bA.mutex.Unlock()
-
 }
 
 //New returns a new Benchmark pointer with the default values set
@@ -196,8 +195,6 @@ func (bA *Benchmark) Run(fn func() error) {
 		", per", bA.StatReqCount, "request(s)",
 		"\nStart                 :", bA.benchStart,
 	)
-
-	print("\n\n")
 
 	for i := uint64(0); i < bA.TotalRequests; i++ {
 		go func() {
