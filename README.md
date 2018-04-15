@@ -2,7 +2,7 @@
 [![](https://goreportcard.com/badge/github.com/bnkamalesh/benchmark)](https://goreportcard.com/report/github.com/bnkamalesh/benchmark)
 [![](https://cover.run/go/github.com/bnkamalesh/benchmark.svg?tag=golang-1.10)](https://cover.run/go/github.com/bnkamalesh/benchmark)
 [![](https://godoc.org/github.com/nathany/looper?status.svg)](http://godoc.org/github.com/bnkamalesh/benchmark)
-[![Maintainability](https://api.codeclimate.com/v1/badges/20dd6639391c7def6d94/maintainability)](https://codeclimate.com/github/bnkamalesh/benchmark/maintainability)
+[![](https://api.codeclimate.com/v1/badges/20dd6639391c7def6d94/maintainability)](https://codeclimate.com/github/bnkamalesh/benchmark/maintainability)
 
 # Benchmark
 A Go library to get benchmarks of a function (execution time). All requests/executions are done in *parallel* (Go routines).
